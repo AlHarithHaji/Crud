@@ -1,0 +1,107 @@
+﻿@page "/contacts"
+
+<h3>Contacts</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th><button @onclick="SortByFirstName">First Name</button></th>
+            <th><button @onclick="SortByLastName">Last Name</button></th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in sortedContacts)
+        {
+            <tr>
+                <td>@contact.FirstName</td>
+                <td>@contact.LastName</td>
+                <td>@contact.Email</td>
+                <td>@contact.PhoneNumber</td>
+                <td><button @onclick="()=>EditContact(contact)">Edit</button></td>
+                <td><button @onclick="()=>ConfirmDelete(contact)">Delete</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (showEditModal)
+{
+    <EditContactModal Contact="selectedContact" OnSave="@SaveContact" OnClose="@CancelEdit" />
+}
+
+@if (showDeleteModal)
+{
+    <DeleteContactModal Contact="selectedContact" OnConfirm="@DeleteContact" OnClose="@CancelDelete" />
+}
+
+@code {
+    private List<Contact>
+    contacts;
+    private List<Contact>
+        sortedContacts;
+        private Contact selectedContact;
+        private bool showEditModal = false;
+        private bool showDeleteModal = false;
+
+        protected override void OnInitialized()
+        {
+        contacts = new List<Contact>
+            ();
+            sortedContacts = contacts.OrderBy(c => c.FirstName).ToList();
+            }
+
+            private void SortByFirstName()
+            {
+            sortedContacts = sortedContacts.OrderBy(c => c.FirstName).ToList();
+            }
+
+            private void SortByLastName()
+            {
+            sortedContacts = sortedContacts.OrderBy(c => c.LastName).ToList();
+            }
+
+            private void EditContact(Contact contact)
+            {
+            selectedContact = contact;
+            showEditModal = true;
+            }
+
+            private void SaveContact(Contact contact)
+            {
+            var existingContact = contacts.FirstOrDefault(c => c.Id == contact.Id);
+            if (existingContact != null)
+            {
+            existingContact.FirstName = contact.FirstName;
+            existingContact.LastName = contact.LastName;
+            existingContact.Email = contact.Email;
+            existingContact.PhoneNumber = contact.PhoneNumber;
+            }
+            showEditModal = false;
+            }
+
+            private void CancelEdit()
+            {
+            showEditModal = false;
+            }
+
+            private void ConfirmDelete(Contact contact)
+            {
+            selectedContact = contact;
+            showDeleteModal = true;
+            }
+
+            private void DeleteContact()
+            {
+            contacts.Remove(selectedContact);
+            showDeleteModal = false;
+            }
+
+            private void CancelDelete()
+            {
+            showDeleteModal = false;
+            }
+            }
